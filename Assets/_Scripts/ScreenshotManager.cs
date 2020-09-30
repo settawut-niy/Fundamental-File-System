@@ -1,27 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Networking;
 using System.IO;
 using SFB;
 
 [RequireComponent(typeof(Camera))]
 public class ScreenshotManager : MonoBehaviour
 {
+    public static ScreenshotManager instance;
+
     Camera mainCamera;
-    bool takeScreenshotOnNextFrame;
 
-    string path;
-
+    // Screenshot setting
     [SerializeField] int screenshotWidth = 2048, screenshotHeight = 2048;
-    [SerializeField] RawImage output;
-    Texture2D texture;
+    bool takeScreenshotOnNextFrame = false;
+
+    // Path of screenshot folder
+    string m_selectedPath;
+
+    public string SelectedPath
+    {
+        get { return m_selectedPath; }
+    }
 
     void Awake()
     {
+        instance = this;
+
         mainCamera = GetComponent<Camera>();
-        path = Application.dataPath;
+
+        GenerateDefaultPath();
+    }
+
+    void GenerateDefaultPath()
+    {
+        var Folder = Directory.CreateDirectory(Application.dataPath + "/Screenshots Folder");
+        m_selectedPath = Application.dataPath + "/" + Folder.Name;
     }
 
     void Update()
@@ -33,16 +47,22 @@ public class ScreenshotManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ChangePathToSave();
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            ShowImageInFolder();
+            ChangeScreenshotPathFolder();
         }
     }
 
+    void TakeScreenshot(int width, int height)
+    {
+        mainCamera.targetTexture = RenderTexture.GetTemporary(width, height, 16);
+        takeScreenshotOnNextFrame = true;
+    }
+
     void OnPostRender()
+    {
+        GenerateScreenshot();
+    }
+
+    void GenerateScreenshot()
     {
         if (takeScreenshotOnNextFrame)
         {
@@ -69,44 +89,24 @@ public class ScreenshotManager : MonoBehaviour
         return string.Format
             (
                 "{0}/Screenshot_{1}x{2}_{3}.png",
-                path,
+                m_selectedPath,
                 screenshotWidth,
                 screenshotHeight,
                 System.DateTime.Now.ToString("yyyy-MM-dd-HHmmss")
             );
     }
 
-    void TakeScreenshot(int width, int height)
-    {
-        mainCamera.targetTexture = RenderTexture.GetTemporary(width, height, 16);
-        takeScreenshotOnNextFrame = true;
-    }
-
-    void ChangePathToSave()
+    void ChangeScreenshotPathFolder()
     {
         var paths = StandaloneFileBrowser.OpenFolderPanel("Select Folder", "", true);
 
-        path = "";
+        m_selectedPath = "";
 
         foreach (string s in paths)
         {
-            path += s;
+            m_selectedPath += s;
         }
 
-        print("Change a path to " + path);
-    }
-
-    void ShowImageInFolder ()
-    {
-        string[] files = Directory.GetFiles(path);
-
-        string url = files[files.Length-1];
-
-        var bytes = File.ReadAllBytes(url);
-
-        texture = new Texture2D(2048, 2048);
-        texture.LoadImage(bytes);
-
-        output.texture = texture;
+        print("Change a path to " + m_selectedPath);
     }
 }
