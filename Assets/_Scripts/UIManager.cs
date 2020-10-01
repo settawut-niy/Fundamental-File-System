@@ -108,11 +108,6 @@ public class UIManager : MonoBehaviour
         isWaitForAutoRefresh = false;
     }
 
-    public void SelectFolderButton()
-    {
-        ScreenshotManager.instance.ChangeScreenshotPathFolder();
-    }
-
     public void AutoRefreshToggle()
     {
         if (toggle_AutoRefresh.isOn)
@@ -128,6 +123,11 @@ public class UIManager : MonoBehaviour
     public void RefreshButton()
     {
         SelectLatestImageInFolder();
+    }
+
+    public void SelectFolderButton()
+    {
+        ScreenshotManager.instance.ChangeScreenshotPathFolder();
     }
 
     public void ExitButton()

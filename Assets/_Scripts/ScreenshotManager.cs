@@ -9,10 +9,11 @@ public class ScreenshotManager : MonoBehaviour
 {
     public static ScreenshotManager instance;
 
+    // Camera that use to take a screenshot
     Camera mainCamera;
 
     // Screenshot setting
-    [SerializeField] int screenshotWidth = 2048, screenshotHeight = 2048;
+    int screenshotWidth = 2048, screenshotHeight = 2048;
     bool takeScreenshotOnNextFrame = false;
 
     // Path of screenshot folder
@@ -51,15 +52,15 @@ public class ScreenshotManager : MonoBehaviour
         }
     }
 
+    void OnPostRender()
+    {
+        GenerateScreenshot();
+    }
+
     void TakeScreenshot(int width, int height)
     {
         mainCamera.targetTexture = RenderTexture.GetTemporary(width, height, 16);
         takeScreenshotOnNextFrame = true;
-    }
-
-    void OnPostRender()
-    {
-        GenerateScreenshot();
     }
 
     void GenerateScreenshot()
@@ -108,7 +109,5 @@ public class ScreenshotManager : MonoBehaviour
         {
             m_selectedPath += s;
         }
-
-        print("Change a path to " + m_selectedPath);
     }
 }
