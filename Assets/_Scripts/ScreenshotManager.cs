@@ -96,9 +96,11 @@ public class ScreenshotManager : MonoBehaviour
             );
     }
 
-    void ChangeScreenshotPathFolder()
+    public void ChangeScreenshotPathFolder()
     {
         var paths = StandaloneFileBrowser.OpenFolderPanel("Select Folder", "", true);
+
+        if (paths.Length < 1){ return;}
 
         m_selectedPath = "";
 
